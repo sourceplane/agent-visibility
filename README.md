@@ -5,23 +5,76 @@ Cloudflare's [Agent Visibility template](https://github.com/cloudflare/templates
 `/llms.txt` and `/llms-full.txt`, a typed `/index.json`, per-page Markdown
 and JSON-LD, a `/robots.txt` that names the AI crawlers it welcomes, and a
 `Content-Signal` header on each, every page enriched once by **Workers AI**
-(a title, a summary, key points, topics, a clean Markdown body) and cached
-in **Workers KV**, with a small dashboard previewing the surfaces — running
-on **Cloudflare Workers + Static Assets**, with the KV namespace provisioned
-by Terraform through [Orun](https://github.com/sourceplane/orun) — and, at
-its last milestone (AV4), packaged as an **Orun baseline**: one command
-taking a new product from nothing to live on stage and prod, in its own
-repository, under its own name, in ONE landing.
+and cached in **Workers KV**, with a small dashboard previewing the surfaces
+— running on **Cloudflare Workers + Static Assets**, with the KV namespace
+provisioned by Terraform through [Orun](https://github.com/sourceplane/orun),
+and packaged as an **Orun baseline**: one command takes a new product from
+nothing to live on stage and prod, in its own repository, under its own
+name — in ONE landing.
 
 The Worker, its surfaces, its enrichment and its dashboard are upstream's,
 unchanged; the dashboard is built by Vite into the Worker's Static Assets.
-Every surface is **public by design** — it exists to be read by agents.
-Writes — adding a page, clearing the cache — are **refused until its owner
-stores an admin token**, as upstream ships it. See
-[`specs/epics/agent-visibility`](specs/epics/agent-visibility/README.md)
-for the design, the milestones and the as-built status.
+Every surface is **public by design**. Writes — adding a page, clearing the
+cache — are **refused until its owner stores an admin token**, as upstream
+ships it. What the baseline adds is everything needed to make a copy of it
+somebody else's, built the way
+[cirrus-baseline](https://github.com/sourceplane/cirrus-baseline) is since
+its one-landing bootstrap. See
+[`specs/epics/agent-visibility`](specs/epics/agent-visibility/README.md) for
+the design, the milestones and the as-built status.
 
-## What is here
+## Instantiating a product
+
+```bash
+git clone --depth 1 --branch <baseline-tag> https://github.com/sourceplane/agent-visibility
+cd agent-visibility
+orun new --blueprint repo-blueprint.yaml --out ~/sites/acme-docs --run-hooks --resume \
+  --set reponame=acme-docs --set productname="Acme Docs" \
+  --set githuborg=acme-inc --set subdomain=<workers-dev-subdomain>
+```
+
+Or, once the platform's registry lists it, from the Orun console (Baselines →
+`agent-visibility` → Build). Two phases: **`01-product`** creates the
+repository and lands the whole product as ONE pull request — intent, CI,
+tooling, the KV root, the site and its tests — and one convergence applies
+the KV namespace on stage and prod and then deploys the site bound to it;
+**`02-docs`** records the live deployment from probed facts.
+**[BOOTSTRAP.md](BOOTSTRAP.md)** is the operator guide;
+[docs/phases/](docs/phases/README.md) has a page per phase.
+
+The only connection a build needs is Cloudflare. The site works from the
+first deploy with upstream's sample pages: the Worker reaches its namespace
+and Workers AI through its bindings, so there is no key to paste. Its admin
+token — `ADMIN_TOKEN`, an optional Orun secret the deploy pushes to the
+Worker as a Worker secret — is the owner's to set after the build.
+
+The new repository receives the **product only** — the site, its KV root,
+its tests, its CI, its tooling, a README and an `AGENTS.md` of its own and
+its operating contract — renamed throughout to the product's name (on every
+agent surface, via `SITE_NAME`, and in the dashboard's title), repository,
+Cloudflare Worker and namespace titles. None of this repository's machinery
+ships.
+
+**Two upstream names begin with the slug.** Cloudflare's template directory,
+`agent-visibility-template`, and the typed index's protocol,
+`agent-visibility/0.1`, which every `/index.json` carries for the agents that
+read it: the rename engine renames this baseline's slug everywhere EXCEPT
+those (`tooling/rebrand/rebrand.mjs`, `UPSTREAM`; held by
+`testing/rebrand.test.sh` and `testing/placement.test.sh`).
+
+| What makes it a baseline | Where |
+|---|---|
+| The console card (inputs, secrets, programme) | `blueprint.yaml` |
+| The build document (modules, phases, hooks) | `repo-blueprint.yaml` |
+| This tree's identity, and the bootstrap's task contracts | `.baseline/` |
+| The rename engine | `tooling/rebrand/rebrand.mjs` |
+| The bootstrap's helpers (deferrals, redeploy marker, work-tree strip) | `tooling/bootstrap/` |
+| The deployment-record renderer | `hooks/render-deployment-docs.sh` |
+| The product's README, `AGENTS.md` and context pack | `.baseline/product/`, `ai/context/` |
+| The baseline's tests: contract, wiring, leak, offline bootstrap, end to end (with a Workers AI stand-in) | `testing/`, `.github/workflows/baseline.yml` |
+| Cutting a `baseline-vN` tag | `.github/workflows/tag.yml` |
+
+## What is here (the product)
 
 | Surface | Where |
 |---|---|
@@ -127,13 +180,15 @@ apps/web  dependsOn cloudflare-kv (enforced on main) · secretEnv WIRING_CLOUDFL
 `wrangler.jsonc` is committed as the fixture render of
 `wrangler.template.jsonc`, because the deploy lane's `verify-app-structure`
 step checks the config exists before it builds; `tests/web` fails if the
-committed render and the fixture disagree.
+committed render and the fixture disagree, and so does `testing/wire.test.sh`.
 
 ## CI
 
-| Workflow | What it runs |
-|---|---|
-| `ci.yml` | the Orun pipeline: `orun plan --changed`, then one job per lane. A pull request runs the verify lanes (the KV root planned for stage and prod, the dashboard built and the Worker dry-deployed per environment, the tests run); a merge applies the KV namespace, then deploys stage → prod. It plans nothing while `intent.yaml` names the placeholder workspace `ws_CHANGE_ME`, as this repository does. A manual run (Run workflow on `main`) plans the environment and components it names under the push-to-main trigger, so they deploy as a merge deploys them |
+| Workflow | What it runs | Ships to a product |
+|---|---|---|
+| `ci.yml` | the Orun pipeline, and the only workflow a product carries: `orun plan --changed`, then one job per lane. A pull request runs the verify lanes (the KV root planned for stage and prod, the dashboard built and the Worker dry-deployed per environment), except the bootstrap's own landings (`orun/BASE-*`), where `plan` alone runs and nothing waits for it (the landing checked its commit in the box); a merge applies the KV namespace, then deploys stage → prod. It plans nothing while `intent.yaml` names the placeholder workspace `ws_CHANGE_ME`, as this repository does. A manual run (Orunbase's Deploy button, or Run workflow on `main`) plans the environment and components it names under the push-to-main trigger, so they deploy as a merge deploys them | yes |
+| `baseline.yml` | the baseline's own tiers: contract tests, the wiring path, the blueprint read by the pinned orun, the leak gate, the offline bootstrap with the product's own plan, the landing installed, type-checked, linted, tested and built, the product built in the job tree, dry-deployed and served over a local store with a Workers AI stand-in — every surface, writes refused, then admitted with a token | no |
+| `tag.yml` | cuts a `baseline-vN` tag (manual) | no |
 
 ## Credits
 

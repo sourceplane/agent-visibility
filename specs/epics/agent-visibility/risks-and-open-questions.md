@@ -48,6 +48,24 @@ enriched store in one KV value (KV's 25 MiB value limit is well above it).
 KV is eventually consistent across locations: a page posted in one region
 can take up to a minute to appear in another. Upstream's design.
 
+## AV-G — No live bootstrap yet (OPEN)
+
+Baseline CI proves everything short of the platform offline. Not yet run
+against a workspace: the repository created and linked, the brokered token
+minted, a real `terraform apply` of the namespace and its lease-published
+document, a real `wrangler deploy` with the `AI` binding, the admin token's
+push and the probes. Closed by one bootstrap from a tag.
+
+## AV-H — A real model's enrichment (OPEN)
+
+Upstream's prompt asks Workers AI for strict JSON. Offline, a stand-in
+answers it (and the fallback stands in when it does not); whether
+upstream's default model (`AI_MODEL`) answers every sample page with
+parseable JSON is only seen live. A page it does not is served from the
+fallback, cached for 60 s and retried, so the risk is a degraded summary,
+not a broken surface. Closed by one cold store enriched on a live
+deployment.
+
 ## Open questions
 
 None blocking.

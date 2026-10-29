@@ -9,7 +9,7 @@ metadata:
 spec:
   title: "Cloudflare's Agent Visibility template on Cloudflare Workers with Workers AI and KV"
   summary: "Cloudflare's Agent Visibility template — one content store served to AI agents through llms.txt and llms-full.txt, a typed JSON index, per-page Markdown and JSON-LD, robots.txt with explicit AI-bot directives and Content-Signal headers, each page enriched by Workers AI and cached in Workers KV, with a small React dashboard over the surfaces — runs per environment on Cloudflare Workers + Static Assets with the KV namespace provisioned by Terraform through Orun, inside the Cirrus baseline's repository conventions. The Worker, its surfaces, its enrichment and its dashboard stay upstream's; what moves is where the cache comes from (rendered per environment from the KV root's wiring document), where the admin token comes from (an optional Orun secret pushed to the Worker as a Worker secret; writes refused without it, as upstream ships it) and how the dashboard is built (Vite alone, into the Worker's Static Assets) — and the repository is an Orun baseline that instantiates the whole product in one landing."
-  state: started
+  state: completed
   milestones:
     - name: "AV0 — the spec"
       exitCriteria:

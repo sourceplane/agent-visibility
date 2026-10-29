@@ -1,0 +1,9 @@
+{
+  "_comment": "THIS TREE'S OWN IDENTITY — the FROM side of every rebrand. tooling/rebrand/rebrand.mjs reads it to know what to rename AWAY from; a product's identity is the --values file, which is the TO side. Change a value here only together with the tree: these strings must be what the tree actually contains, or the rename silently misses and the product ships carrying this baseline's name. `productName` is the SITE_NAME seam in apps/web/wrangler.template.jsonc (and its committed render, wrangler.jsonc) and the dashboard's <title> in apps/web/index.html — upstream's own label for the template, which the dashboard's kicker keeps; `slug` also names the KV namespace titles (terraform `repo`) and the secret project, and is the first half of the upstream template's directory name and of its index protocol, which the rename never touches; `domain` and `subdomain` are placeholders, because this baseline has never deployed under a name of its own; `githubOwner` is the owner of this repository.",
+  "slug": "agent-visibility",
+  "pascal": "AgentVisibility",
+  "productName": "AI Agent Visibility",
+  "domain": "agent-visibility.example.com",
+  "subdomain": "your-workers-subdomain",
+  "githubOwner": "sourceplane"
+}

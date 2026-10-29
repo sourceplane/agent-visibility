@@ -25,7 +25,7 @@ Every text surface carries `Content-Signal: ai-input=yes, search=yes, ai-train=n
 the raw pages under `resources:raw` (upstream's five sample pages for "Acme"
 until someone posts their own), the enriched ones under `resources:enriched`.
 A cold cache is enriched page by page through the `AI` binding
-(`@cf/meta/llama-3.3-70b-instruct-fp8-fast`, `AI_MODEL`) and written with a
+(upstream's default model, the `AI_MODEL` var) and written with a
 TTL (`ENRICHMENT_CACHE_TTL`, 3600 s); a page the model fails on gets a
 deterministic enrichment from its own text instead, and a store holding one
 is cached for 60 s only, so an outage cannot pin a degraded surface. The
