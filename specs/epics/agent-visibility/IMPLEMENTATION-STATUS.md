@@ -11,7 +11,7 @@ at `7ae5750`, MIT).
 | AV1 — the site on Workers | ✅ Shipped | [#2](https://github.com/sourceplane/agent-visibility/pull/2) (AV-2) |
 | AV2 — the KV namespace from Terraform | ✅ Shipped (validated; apply gated on a linked workspace) | [#3](https://github.com/sourceplane/agent-visibility/pull/3) (AV-3) |
 | AV3 — ready to instantiate | ✅ Shipped | [#4](https://github.com/sourceplane/agent-visibility/pull/4) (AV-4) |
-| AV4 — a baseline | Planned | — |
+| AV4 — a baseline | ✅ Shipped (offline-proven; no live bootstrap yet, risk AV-G) | [#5](https://github.com/sourceplane/agent-visibility/pull/5) (AV-5), tagged `baseline-v1` |
 
 ## Departures from the upstream template
 
@@ -113,4 +113,72 @@ carried; the Orun card is `blueprint.yaml` (AV4).
 | Writes are refused without the token and admitted with it | `tests/web`; `wrangler dev --local` with `.dev.vars` by hand (AV1) |
 | The config binds `VISIBILITY_CACHE`, `AI` and `ASSETS` | `wrangler deploy --dry-run` (AV1); `tests/web/src/config.test.ts` |
 | The KV root is valid and publishes `app_kv_id` | `terraform validate` (AV2) |
-| A deploy on a linked workspace | Not yet: gated on a linked workspace |
+| The baseline: a product built offline, its plan, its build, its Worker served | Baseline CI's three tiers (AV4, below) |
+| A deploy on a linked workspace | Not yet: gated on a linked workspace (risk AV-G) |
+
+## AV4 — a baseline (AV-5)
+
+The repository is an Orun baseline on the Cirrus conventions, held to the
+starter standard and built the way turso-starter builds a product: ONE
+landing. Its shape is edge-middleware-recipes' (a Hono Worker with optional
+secrets handed over as runtime secrets), and its tree is r2-explorer's and
+ai-artifacts' (a Static Assets Worker, a KV root, the keyless `AI` binding),
+because edge-middleware-recipes has neither Static Assets nor a Terraform
+root. `blueprint.yaml` is the card (`requires: [github, cloudflare]`; the
+two brokered keys — `CLOUDFLARE_API_TOKEN` from `workers-deploy`,
+`CLOUDFLARE_ACCOUNT_ID` — as a preview, and the admin token deliberately
+not among them; the programme `01-product`, `02-docs`; `expectedMinutes` 6,
+the two phase cards' 5 + 1). `repo-blueprint.yaml` places every module in
+`01-product` and lands it as one pull request; `02-docs` records the
+deployment from probed facts (`/api/health`: the store read) and puts the
+bootstrap's deferrals back.
+
+- **The rename engine** (`tooling/rebrand/rebrand.mjs`, Cirrus's engine,
+  this tree's rules): the repository slug, the Worker, the namespace
+  titles, the secret refs and the Worker the deploy pushes the token to,
+  the domain placeholder, the workers.dev subdomain — and the product's
+  name in two seams, `"SITE_NAME"` in the wrangler template and its
+  committed render (JSON-encoded) and the dashboard's `<title>`
+  (HTML-escaped). The slug is the first half of two upstream names, so
+  `UPSTREAM` protects them: Cloudflare's template directory
+  (`agent-visibility-template`) and the index protocol
+  (`agent-visibility/0.1`, with upstream's own test asserting it). The
+  dashboard's kicker, "AI Agent Visibility", is upstream's label for the
+  template and is not a seam. The epic slug a bootstrap files its task under
+  is `agent-visibility-baselining`.
+- **The edge.** `web` on `cloudflare-kv` — `mode: enforced` on a push to
+  main, advisory on a pull request.
+- **The component docs** are generated (`tooling/catalog/gen-component-docs.py`)
+  and checked in Baseline CI.
+- **The Workers AI stand-in** (`testing/lib/fake-ai`): under `wrangler dev`
+  the end-to-end tier points the `AI` binding at a Worker whose `run`
+  answers upstream's prompt with JSON naming the model — or throws, for a
+  page marked to fail, so the fallback is exercised on the served Worker
+  too.
+
+### Verified (AV4)
+
+- Contract tests: manifest, phases, coverage, rebrand, retouch,
+  bootstrap-defer, wire; the component docs match their manifests; `orun
+  catalog validate` reports no errors.
+- The blueprint read by the bootstrap floor (`orun new --status`); the leak
+  gate (78 files derived, nothing local, built or provenance-shaped); the
+  offline bootstrap with the blueprint's own hooks, then the product's own
+  plan for the 01-product merge — cloudflare-kv → web on stage and prod,
+  enforced; advisory on a pull request — and a `--resume` that changes
+  nothing; the placed product still speaking `agent-visibility/0.1`.
+- The end-to-end tier: the product installed, type-checked, linted, tested
+  and built; the stage web lane's own steps in the job tree orun stages,
+  with a random marker planted as the admin token in the build's
+  environment and found in nothing it wrote or logged; its dry deploy
+  binding the stage namespace, Workers AI and the assets (the Worker 23 KiB
+  gzipped); the Worker-secrets step naming the token for
+  `<repo>-web-stage`; the built Worker served by `wrangler dev` over a
+  local store with the stand-in model — the component's own smoke, the
+  dashboard under the product's name, every surface with its
+  Content-Signal header and the product's name, five pages enriched through
+  the binding, Web Bot Auth off, every write refused; then with the token in
+  `.dev.vars`, a wrong token and a bad slug refused, a page posted and on
+  every surface, a page the model failed on enriched by the fallback, and
+  the cache cleared and re-enriched.
+- Not verified: everything risks AV-G and AV-H name.

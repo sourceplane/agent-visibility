@@ -2,22 +2,21 @@
 // Worker SECRETS from the job's environment (zero-dependency).
 //
 // Some values a build is given must reach the Worker at request time and never
-// a bundle: the E2B API key and the model providers' keys. The deploy lane has
-// them in its environment (Orun secrets the component's `optionalSecretEnv`
-// resolves), and this hands
-// the named variables that are set to `wrangler secret bulk` as JSON over
-// stdin, so no value is ever on a command line or in a log.
+// a bundle: the admin token that opens the site's writes. The deploy lane has
+// it in its environment (an Orun secret the component's `optionalSecretEnv`
+// resolves), and this hands the named variables that are set to
+// `wrangler secret bulk` as JSON over stdin, so no value is ever on a command
+// line or in a log.
 //
 //   node worker-secrets.mjs --worker <worker-name> [--config wrangler.jsonc] \
-//     --secret E2B_API_KEY [--secret …]
+//     --secret ADMIN_TOKEN [--secret …]
 //
 //   --dev-vars <file>   write the same secrets as KEY=value lines instead
 //                       (wrangler dev reads .dev.vars as the Worker's secrets)
 //
 // The secrets are OPTIONAL, like the Orun secrets they come from: a variable
 // that is not set is skipped, named, and the site reads its absence at request
-// time (apps/web/lib/secrets.ts: "connect E2B", or a provider left out of the
-// model picker). Only a job that can
+// time (no ADMIN_TOKEN: every write answers 401). Only a job that can
 // deploy holds a Cloudflare credential (the composition's deploy profile
 // binds CLOUDFLARE_API_TOKEN; its verify profiles bind nothing), so without
 // one this says so and exits 0: a verify lane builds exactly what the deploy
