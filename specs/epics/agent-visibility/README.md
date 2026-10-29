@@ -8,7 +8,7 @@ The port keeps the Worker, its surfaces, its enrichment (and its deterministic f
 
 | Field | Value |
 |-------|-------|
-| Status | In progress — AV0 (the spec) |
+| Status | In progress — AV0–AV3 shipped; AV4 (the baseline) next |
 | Cluster | **AV** (AV0–AV4) |
 | Owner(s) | `apps/web` (`src/worker`, `src/enrichment`, `src/lib`, `src/react-app`, `/api/health`, the wrangler template) · `tests/web` · `infra/terraform/cloudflare-kv` |
 | Builds on | `edge-middleware-recipes` (a Hono Worker on Orun with its optional secrets as runtime secrets); `kv-redis-starter` and `ai-artifacts` (the Cirrus KV root `cloudflare-kv`, its wiring render, the keyless `AI` binding and its one-landing bootstrap); `r2-explorer` (optional Orun secrets handed to a Static Assets Worker as Worker secrets) |
