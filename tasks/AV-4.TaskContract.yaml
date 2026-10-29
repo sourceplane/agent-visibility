@@ -1,0 +1,17 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: AV-4
+  title: "Ready to instantiate"
+spec:
+  goal: A reader can run, test, preview, add pages to and deploy the site from a fresh clone, and the as-built status records every departure from upstream
+  affects:
+    - README.md
+    - apps/web/README.md
+    - specs/epics/agent-visibility/**
+    - specs/epics/README.md
+    - tasks/AV-4.TaskContract.yaml
+  doneWhen:
+    - the README's quick start works from a fresh clone, writes refused and then admitted with the token
+    - IMPLEMENTATION-STATUS lists every PR and departure
+  gates: []

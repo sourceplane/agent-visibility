@@ -1,0 +1,35 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: AV-5
+  title: "A baseline"
+spec:
+  goal: The repository is an Orun baseline on the Cirrus conventions — a card and a build document that take a new product from nothing to live on stage and prod in one landing (the namespace, then the site), branded as its own and still speaking the agent-visibility/0.1 index protocol, with gates that prove it offline
+  affects:
+    - blueprint.yaml
+    - repo-blueprint.yaml
+    - BOOTSTRAP.md
+    - README.md
+    - .baseline/**
+    - tooling/rebrand/**
+    - tooling/bootstrap/**
+    - tooling/catalog/**
+    - hooks/**
+    - testing/**
+    - docs/phases/**
+    - ai/context/**
+    - .github/workflows/**
+    - intent.yaml
+    - apps/web/**
+    - infra/**
+    - tests/web/**
+    - specs/**
+    - tasks/**
+  doneWhen:
+    - the pinned orun reads repo-blueprint.yaml, the card agrees with it, and orun catalog validate reports no errors
+    - the product's own push-to-main plan applies cloudflare-kv before web, enforced, and a pull request's plan holds the edge advisory
+    - a product built offline builds in the job tree orun stages with its admin token found in nothing it wrote, dry-deploys its bindings, and serves every surface and the dashboard over a local store, writes refused and then admitted
+    - every component carries generated docs that agree with its manifest
+    - the as-built status records the departures and what is not yet proven live
+  gates:
+    - checks

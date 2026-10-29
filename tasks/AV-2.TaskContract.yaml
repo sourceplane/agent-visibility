@@ -1,0 +1,19 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: AV-2
+  title: "The site on Workers"
+spec:
+  goal: apps/web is Cloudflare's Agent Visibility template — its Hono Worker serving every agent surface from the VISIBILITY_CACHE KV store enriched through the AI binding, its React dashboard in Static Assets — writes closed until ADMIN_TOKEN is stored, the wrangler config rendered per environment, with /api/health checking the store
+  affects:
+    - apps/web/**
+    - tests/web/**
+    - tooling/wire/worker-secrets.mjs
+    - pnpm-lock.yaml
+  doneWhen:
+    - pnpm typecheck, lint, test and build are green
+    - the committed wrangler.jsonc is its fixture render
+    - a dry-run deploy binds env.VISIBILITY_CACHE, env.AI and env.ASSETS
+    - wrangler dev serves every surface and the dashboard, refuses writes, and with ADMIN_TOKEN admits a page and serves it
+  gates:
+    - checks

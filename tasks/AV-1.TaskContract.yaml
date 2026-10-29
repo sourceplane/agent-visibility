@@ -1,0 +1,28 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: AV-1
+  title: "The spec"
+spec:
+  goal: The agent-visibility epic — declaration, doc set and task contracts — is on main, with the repository's intent, CI and shared tooling
+  affects:
+    - specs/**
+    - tasks/**
+    - README.md
+    - intent.yaml
+    - .github/workflows/ci.yml
+    - .gitignore
+    - .vscode/**
+    - package.json
+    - pnpm-workspace.yaml
+    - pnpm-lock.yaml
+    - turbo.json
+    - packages/.gitkeep
+    - tooling/eslint/**
+    - tooling/tsconfig/**
+    - tooling/wire/**
+  doneWhen:
+    - epic.yaml, README, design, implementation plan, risks and status are merged
+    - the five task contracts exist
+    - ci.yml's plan job is green while the workspace is ws_CHANGE_ME
+  gates: []
