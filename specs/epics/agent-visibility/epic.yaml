@@ -1,0 +1,40 @@
+# The epic's declaration. metadata.name equals the directory name; metadata.key
+# is the task-key prefix this epic reserves (AV → AV-1, AV-2, …). Owner, target
+# date and health are the platform's — never written here.
+apiVersion: orun.io/v1
+kind: Epic
+metadata:
+  name: agent-visibility
+  key: AV
+spec:
+  title: "Cloudflare's Agent Visibility template on Cloudflare Workers with Workers AI and KV"
+  summary: "Cloudflare's Agent Visibility template — one content store served to AI agents through llms.txt and llms-full.txt, a typed JSON index, per-page Markdown and JSON-LD, robots.txt with explicit AI-bot directives and Content-Signal headers, each page enriched by Workers AI and cached in Workers KV, with a small React dashboard over the surfaces — runs per environment on Cloudflare Workers + Static Assets with the KV namespace provisioned by Terraform through Orun, inside the Cirrus baseline's repository conventions. The Worker, its surfaces, its enrichment and its dashboard stay upstream's; what moves is where the cache comes from (rendered per environment from the KV root's wiring document), where the admin token comes from (an optional Orun secret pushed to the Worker as a Worker secret; writes refused without it, as upstream ships it) and how the dashboard is built (Vite alone, into the Worker's Static Assets) — and the repository is an Orun baseline that instantiates the whole product in one landing."
+  state: started
+  milestones:
+    - name: "AV0 — the spec"
+      exitCriteria:
+        - "the doc set and the task contracts are on main, with the repository's intent, CI and tooling"
+      tasks: [AV-1]
+    - name: "AV1 — the site on Workers"
+      exitCriteria:
+        - "apps/web is the upstream template: its Hono Worker serving every agent surface from the VISIBILITY_CACHE KV store enriched through the AI binding, its React dashboard in Static Assets, upstream's run_worker_first routes, and /api/health checking the store"
+        - "writes (POST /api/resources, POST /api/refresh) refused with no ADMIN_TOKEN stored; with one, a bearer of it may add pages and clear the cache"
+        - "the wrangler config renders per environment from the cloudflare-kv root's wiring document (fixture in verify, live in deploy)"
+        - "`pnpm typecheck`, `pnpm lint`, `pnpm test` and `pnpm build` are green"
+      tasks: [AV-2]
+    - name: "AV2 — the KV namespace from Terraform"
+      exitCriteria:
+        - "infra/terraform/cloudflare-kv provisions the stage and prod namespaces and publishes the wiring document the app renders from"
+      tasks: [AV-3]
+    - name: "AV3 — ready to instantiate"
+      exitCriteria:
+        - "the README says how to run, test, preview and deploy it, how its owner adds pages and how they set the admin token"
+        - "the as-built status records every departure from the upstream template"
+      tasks: [AV-4]
+    - name: "AV4 — a baseline"
+      exitCriteria:
+        - "blueprint.yaml (the console card, requires [github, cloudflare]) and repo-blueprint.yaml (the build) take a new product from nothing to live on stage and prod in ONE landing, then record it (01-product, 02-docs)"
+        - "the product's own push-to-main plan applies cloudflare-kv before it deploys web, enforced on main and advisory on a pull request"
+        - "a product built from it carries the product only, renamed throughout to its own name, repository, Worker and namespace titles — and still speaks the agent-visibility/0.1 index protocol, whose name is this baseline's slug"
+        - "Baseline CI is green: contract tests, the blueprint read by the pinned orun, the leak gate, the offline bootstrap and the product's plans, and the end-to-end tier — which serves the built Worker over a local KV store, its surfaces and its dashboard, writes refused and then admitted with the token"
+      tasks: [AV-5]

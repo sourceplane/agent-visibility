@@ -1,0 +1,14 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: AV-3
+  title: "The KV namespace from Terraform"
+spec:
+  goal: infra/terraform/cloudflare-kv provisions one KV namespace per deployed environment and publishes the wiring document the site's config renders from
+  affects:
+    - infra/terraform/cloudflare-kv/**
+  doneWhen:
+    - terraform validate passes
+    - the root publishes WIRING_CLOUDFLARE_KV with app_kv_id, the key the template's token names
+  gates:
+    - checks
