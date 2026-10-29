@@ -1,0 +1,32 @@
+{
+  "name": "@app/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build && wrangler dev --local",
+    "dev:remote": "vite build && wrangler dev",
+    "preview": "vite build && wrangler dev --local",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.app.json",
+    "lint": "eslint .",
+    "wire:fixture": "node ../../tooling/wire/render.mjs --template wrangler.template.jsonc --out wrangler.jsonc --map wiring.fixture.json --env stage"
+  },
+  "dependencies": {
+    "hono": "4.11.1",
+    "react": "19.2.1",
+    "react-dom": "19.2.1"
+  },
+  "devDependencies": {
+    "@app/eslint-config": "workspace:*",
+    "@app/tsconfig": "workspace:*",
+    "@cloudflare/workers-types": "^4.20260702.1",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "5.1.1",
+    "eslint": "^9.27.0",
+    "typescript": "5.9.3",
+    "vite": "^7.0.0",
+    "wrangler": "^4.151.0"
+  }
+}

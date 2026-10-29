@@ -33,11 +33,13 @@ owner who wants it replaces `SAMPLE_AGENT_KEYS` and sets the var.
 
 ## AV-E — Workers AI in local development (ACCEPTED)
 
-Workers AI has no local mode. Under `wrangler dev` with no Cloudflare
-sign-in every model call fails and upstream's fallback enriches each page
-from its own text; the surfaces serve, their `model` field reading
-`… (fallback)`, cached for 60 s. The end-to-end tier relies on exactly
-that, and proves it.
+Workers AI has no local mode, and `wrangler dev` with the binding opens a
+remote session (it does not start with no Cloudflare sign-in). `pnpm dev`
+runs it `--local`, as upstream's dev server does (`remoteBindings: false`):
+every model call fails and upstream's fallback enriches each page from its
+own text; the surfaces serve, their `model` field reading `… (fallback)`,
+cached for 60 s. `pnpm dev:remote` uses the signed-in account's model and
+may spend on it.
 
 ## AV-F — The store's limits (ACCEPTED)
 

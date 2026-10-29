@@ -1,0 +1,7 @@
+# Copy to .dev.vars for `pnpm dev` / `pnpm preview` (never committed).
+# OPTIONAL. Without it POST /api/resources and POST /api/refresh answer 401,
+# as upstream ships; with it, a request carrying
+# `Authorization: Bearer <ADMIN_TOKEN>` may add or replace a page and clear
+# the enriched cache. On a deployed environment it is the Orun secret of the
+# same name, pushed to the Worker as a Worker secret on deploy.
+ADMIN_TOKEN=

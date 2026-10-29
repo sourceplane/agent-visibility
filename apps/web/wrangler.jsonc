@@ -1,0 +1,61 @@
+// GENERATED from wrangler.template.jsonc by tooling/wire — edit the
+// template, not this file. The committed copy is the fixture render
+// (`pnpm run wire:fixture`); every Orun lane renders its own environment.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "agent-visibility-web",
+  // Upstream's Worker: every agent surface and the dashboard's JSON API.
+  // wrangler bundles it; the build only builds the dashboard.
+  "main": "src/worker/index.ts",
+  "compatibility_date": "2025-10-08",
+  "upload_source_maps": true,
+  "observability": { "enabled": true },
+  // The dashboard, built by Vite into dist/client. Upstream's asset settings,
+  // unchanged: the surfaces and the API reach the Worker first, every other
+  // path without a file is the single-page app's.
+  "assets": {
+    "directory": "dist/client",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": [
+      "/.well-known/web-bot-auth/*",
+      "/api",
+      "/api/*",
+      "/index.json",
+      "/jsonld",
+      "/llms-full.txt",
+      "/llms.txt",
+      "/robots.txt",
+      "/*.jsonld",
+      "/*.md"
+    ]
+  },
+  // Workers AI, keyless: the account's. It enriches each page once; the
+  // result is cached in VISIBILITY_CACHE. It has no local mode: `pnpm dev`
+  // runs `wrangler dev --local` (remote bindings off, as upstream's Vite
+  // config sets `remoteBindings: false`), where every model call fails and
+  // upstream's deterministic fallback enriches each page from its own text;
+  // `pnpm dev:remote` reaches the signed-in account's model (`wrangler login`
+  // first).
+  "ai": { "binding": "AI" },
+  // The store: the raw pages and their enrichment.
+  "kv_namespaces": [
+    {
+      "binding": "VISIBILITY_CACHE",
+      "id": "00000000000000000000000000000002"
+    }
+  ],
+  // Upstream's vars. SITE_NAME and SITE_DESCRIPTION name the site on every
+  // surface: the product's. The sample pages (src/lib/content.ts) stay
+  // upstream's until their owner posts their own. ADMIN_TOKEN is a secret,
+  // never a var (.dev.vars locally; an Orun secret, pushed as a Worker secret,
+  // deployed).
+  "vars": {
+    "SITE_NAME": "AI Agent Visibility",
+    "SITE_DESCRIPTION": "Content made readable by AI agents on every surface they look at.",
+    "AI_MODEL": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+    "ENRICHMENT_CACHE_TTL": "3600",
+    "CONTENT_SIGNAL": "ai-input=yes, search=yes, ai-train=no",
+    "ENABLE_WEB_BOT_AUTH": "false"
+  }
+}

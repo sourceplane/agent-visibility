@@ -40,6 +40,7 @@ as a single-page app.
 |---|---|
 | `src/worker`, `src/enrichment`, `src/lib`, `src/react-app`, `index.html` | `apps/web/` — the same files, unchanged but for `/api/health` (§5) |
 | `vite` + `@cloudflare/vite-plugin` building the Worker and the client together | Vite with `@vitejs/plugin-react` alone builds the dashboard into `dist/client`; wrangler bundles `src/worker/index.ts` as the Worker (the composition's `workerEntrypoint`), with the same assets directory and the same `run_worker_first` list |
+| `npm run dev` (Vite's dev server, `remoteBindings: false`) | `pnpm dev`: the dashboard built, then `wrangler dev --local` — remote bindings off, as upstream's; `pnpm dev:remote` with the account's model (§4) |
 | `"kv_namespaces": [{ "binding": "VISIBILITY_CACHE" }]` (provisioned by Deploy to Cloudflare) | `"id": "@@wiring(cloudflare-kv/__ENV__:app_kv_id)@@"`, rendered per environment (§4); `wrangler dev` uses a local store |
 | `"ai": { "binding": "AI" }` | unchanged — keyless, the account's Workers AI (§4) |
 | `SITE_NAME` "Acme Docs", `SITE_DESCRIPTION` | the product's name and a line about it, which a product's rename rewrites; the sample pages stay upstream's |
@@ -90,15 +91,18 @@ renders `wrangler.jsonc` from it — from `wiring.fixture.json` for `dev`
 its apply. The committed `wrangler.jsonc` is the fixture's render, so a
 fresh clone runs `wrangler dev` with no Orun at all.
 
-Workers AI has no local mode: under `wrangler dev` the `AI` binding reaches
-the account the developer is signed in to, and with none every call fails
-— which upstream's enrichment already answers with its deterministic
-fallback, so the surfaces still serve (§7).
+Workers AI has no local mode, and `wrangler dev` with the `AI` binding
+opens a remote session to the signed-in account (and does not start with
+none). `pnpm dev` runs `wrangler dev --local` instead — remote bindings
+off, as upstream's Vite config sets `remoteBindings: false` — where every
+model call fails and upstream's enrichment answers with its deterministic
+fallback, so the surfaces still serve; `pnpm dev:remote` uses the real
+model (§7).
 
 ## 5. `/api/health`
 
-Added: `GET /api/health` reads the store's two keys from KV — never the
-model — and answers `{ ok, kv, ai, cached, pages }`: whether KV answered,
+Added: `GET /api/health` reads the enriched store's key from KV — never
+the model — and answers `{ ok, kv, ai, cached, pages }`: whether KV answered,
 whether the `AI` binding is bound, whether an enriched store is cached and
 how many pages it holds. `ok` is `false` (and the status `503`) only when
 KV fails. It is the deploy smoke's check and the probes': a smoke that
@@ -124,5 +128,5 @@ kept, seeds the enriched store as upstream's does; added cases cover
 `/api/health`, writes with no token configured, the enrichment of a posted
 page by the stand-in model, and the fallback when the model throws.
 From AV4 the end-to-end tier serves the built Worker under `wrangler dev`
-over a local store: every surface, the dashboard, writes refused, then
-admitted with a token from `.dev.vars`.
+over a local store, its model a stand-in or absent: every surface, the
+dashboard, writes refused, then admitted with a token from `.dev.vars`.

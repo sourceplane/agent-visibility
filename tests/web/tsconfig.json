@@ -1,0 +1,20 @@
+{
+  "extends": "../../tooling/tsconfig/worker.json",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "incremental": false,
+    "noEmit": true,
+    // The Worker's sources are checked again through the tests' imports, so
+    // under the Worker's settings (apps/web/tsconfig.json).
+    "lib": ["ES2023"],
+    "noUncheckedIndexedAccess": false,
+    "allowJs": false,
+    "types": ["node", "@cloudflare/workers-types"],
+    "paths": {
+      "@/*": ["../../apps/web/*"]
+    }
+  },
+  "include": ["src/**/*.ts"]
+}

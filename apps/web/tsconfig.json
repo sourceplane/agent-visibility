@@ -1,0 +1,20 @@
+{
+  // The Worker: upstream's src/worker, src/enrichment and src/lib.
+  "extends": "../../tooling/tsconfig/worker.json",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "incremental": false,
+    "noEmit": true,
+    // Upstream's compiler settings for this code (its tsconfig.node.json and
+    // tsconfig.worker.json): the Workers runtime's types alone, not the
+    // WebWorker lib, whose stricter WebCrypto signatures reject upstream's
+    // Web Bot Auth module, and no unchecked-index rule upstream never had.
+    "lib": ["ES2023"],
+    "noUncheckedIndexedAccess": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  },
+  "include": ["src/worker/**/*.ts", "src/enrichment/**/*.ts", "src/lib/**/*.ts"]
+}

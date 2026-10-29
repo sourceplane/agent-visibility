@@ -1,0 +1,20 @@
+{
+  // The dashboard: upstream's src/react-app, as its tsconfig.app.json reads it.
+  "extends": "../../tooling/tsconfig/web.json",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "incremental": false,
+    "noEmit": true,
+    // As upstream's tsconfig.app.json: no unchecked-index rule.
+    "noUncheckedIndexedAccess": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "jsx": "react-jsx",
+    "allowImportingTsExtensions": true,
+    "moduleDetection": "force",
+    "useDefineForClassFields": true
+  },
+  "include": ["src/react-app/**/*.ts", "src/react-app/**/*.tsx", "vite.config.ts"]
+}
